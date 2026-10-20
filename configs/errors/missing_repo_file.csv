@@ -1,0 +1,4 @@
+key,value
+package_name,A
+repository,../../tests_repo/no_such_file.txt
+test_mode,true

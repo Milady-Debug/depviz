@@ -1,0 +1,4 @@
+key,value
+package_name,a1
+repository,../../tests_repo/simple.txt
+test_mode,true
