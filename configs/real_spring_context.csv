@@ -2,3 +2,4 @@ key,value
 package_name,org.springframework:spring-context:6.1.8
 repository,https://repo1.maven.org/maven2
 test_mode,false
+output_mode,d2

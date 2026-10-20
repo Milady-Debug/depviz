@@ -1,0 +1,5 @@
+key,value
+package_name,A
+repository,../tests_repo/cycle.txt
+test_mode,true
+output_mode,d2
