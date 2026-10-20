@@ -202,6 +202,21 @@ class MavenRepository:
         return list(self._model(group, artifact, version)[2])
 
 
+# scope, которые Maven передаёт транзитивно (test, provided, system — нет)
+TRANSITIVE_SCOPES = ("compile", "runtime")
+
+
+def make_provider(repo):
+    """Функция для build_graph: 'g:a:v' -> ['g:a:v', ...].
+    В граф попадают зависимости, которые получит проект, подключивший
+    пакет: scope compile/runtime, без optional."""
+    def provider(coord):
+        g, a, v = parse_coordinate(coord)
+        return [d.coord for d in repo.direct_dependencies(g, a, v)
+                if d.scope in TRANSITIVE_SCOPES and not d.optional]
+    return provider
+
+
 def parse_coordinate(name):
     """'g:a[:v]' -> (g, a, v или None)."""
     parts = name.split(":")

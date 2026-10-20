@@ -1,0 +1,4 @@
+key,value
+package_name,A
+repository,../tests_repo/bad_names.txt
+test_mode,true

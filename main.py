@@ -6,7 +6,24 @@
 import sys
 
 from depviz.config import ConfigError, load_config
-from depviz.maven import MavenError, MavenRepository, parse_coordinate
+from depviz.graph import build_graph, format_tree
+from depviz.maven import MavenError, MavenRepository, make_provider, parse_coordinate
+from depviz.test_repo import TestRepoError, TestRepository
+
+
+def prepare(config):
+    """Возвращает (корневой узел, функция получения зависимостей, типы ошибок)."""
+    if config["test_mode"]:
+        repo = TestRepository(config["repository"])
+        root = config["package_name"]
+        repo.dependencies(root)  # пакет должен существовать
+        return root, repo.dependencies, (TestRepoError,)
+    repo = MavenRepository(config["repository"])
+    group, artifact, version = parse_coordinate(config["package_name"])
+    if version is None:
+        version = repo.latest_version(group, artifact)
+    repo.direct_dependencies(group, artifact, version)  # корневой POM должен загружаться
+    return f"{group}:{artifact}:{version}", make_provider(repo), (MavenError,)
 
 
 def main(argv):
@@ -17,25 +34,23 @@ def main(argv):
         print(f"Ошибка конфигурации: {e}", file=sys.stderr)
         return 1
 
-    if config["test_mode"]:
-        print("Тестовый режим будет поддержан на этапе 3.", file=sys.stderr)
-        return 1
-
-    # Этап 2: вывод прямых зависимостей пакета из Maven-репозитория
-    repo = MavenRepository(config["repository"])
-    group, artifact, version = parse_coordinate(config["package_name"])
     try:
-        if version is None:
-            version = repo.latest_version(group, artifact)
-        deps = repo.direct_dependencies(group, artifact, version)
-    except MavenError as e:
+        root, provider, errors = prepare(config)
+    except (MavenError, TestRepoError) as e:
         print(f"Ошибка репозитория: {e}", file=sys.stderr)
         return 2
 
-    print(f"Прямые зависимости {group}:{artifact}:{version} ({len(deps)}):")
-    for d in deps:
-        flags = f" [{d.scope}]" + (" (optional)" if d.optional else "")
-        print(f"  {d.coord}{flags}")
+    graph = build_graph(root, provider, errors)
+
+    # Этап 3: граф зависимостей с учётом транзитивности
+    print(format_tree(graph))
+    print(f"\nУзлов: {len(graph.nodes)}, рёбер: {graph.edge_count()}")
+    if graph.cycles:
+        print("Обнаружены циклические зависимости:")
+        for cycle in graph.cycles:
+            print("  " + " -> ".join(cycle))
+    for node, err in graph.errors.items():
+        print(f"Предупреждение: {node}: {err}", file=sys.stderr)
     return 0
 
 
