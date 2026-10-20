@@ -28,6 +28,10 @@ def prepare(config):
 
 
 def main(argv):
+    # Windows: при перенаправлении в файл (> graph.d2) вывод был бы в cp1251
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8")
     config_path = argv[1] if len(argv) > 1 else "config.csv"
     try:
         config = load_config(config_path)
