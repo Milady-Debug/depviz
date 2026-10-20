@@ -1,0 +1,4 @@
+key,value
+package_name,com.example:app
+repository,file:../local_maven
+test_mode,false

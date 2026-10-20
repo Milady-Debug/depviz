@@ -6,6 +6,7 @@
 """
 import csv
 import os
+import pathlib
 import re
 from urllib.parse import urlparse
 
@@ -88,6 +89,14 @@ def _check_repository(repo, test_mode, config_dir):
             f"repository: '{repo}' — ожидается URL со схемой http://, https:// или file://")
     if parsed.scheme in ("http", "https") and not parsed.netloc:
         raise ConfigError(f"repository: в URL '{repo}' не указан хост")
+    if parsed.scheme == "file":
+        # file:../local_maven — путь относительно папки конфига
+        local = parsed.path if (parsed.netloc == "" and os.path.isabs(parsed.path)) \
+            else os.path.join(config_dir, parsed.netloc + parsed.path)
+        local = os.path.normpath(local)
+        if not os.path.isdir(local):
+            raise ConfigError(f"repository: локальный репозиторий не найден: {local}")
+        return pathlib.Path(local).as_uri()
     return repo.rstrip("/")
 
 
