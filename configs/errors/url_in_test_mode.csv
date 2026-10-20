@@ -1,0 +1,4 @@
+key,value
+package_name,A
+repository,https://repo1.maven.org/maven2
+test_mode,true

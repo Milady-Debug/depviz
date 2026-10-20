@@ -1,0 +1,4 @@
+key,value
+package_name,org.example:lib:1.0
+repository,https://repo1.maven.org/maven2
+test_mode,maybe
