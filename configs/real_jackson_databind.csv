@@ -2,3 +2,4 @@ key,value
 package_name,com.fasterxml.jackson.core:jackson-databind:2.17.1
 repository,https://repo1.maven.org/maven2
 test_mode,false
+output_mode,d2

@@ -18,9 +18,9 @@ class ConfigError(Exception):
 # Обязательные параметры (порядок важен для вывода).
 REQUIRED_KEYS = ("package_name", "repository", "test_mode")
 # Необязательные параметры и их значения по умолчанию.
-OPTIONAL_KEYS = {"output_mode": "tree"}
+OPTIONAL_KEYS = {"output_mode": "d2"}
 KNOWN_KEYS = REQUIRED_KEYS + tuple(OPTIONAL_KEYS)
-OUTPUT_MODES = ("tree", "load_order")
+OUTPUT_MODES = ("d2", "tree", "load_order")
 
 TRUE_VALUES = {"true", "yes", "1", "on"}
 FALSE_VALUES = {"false", "no", "0", "off"}

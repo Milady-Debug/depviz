@@ -1,0 +1,37 @@
+# Граф зависимостей пакета A
+direction: down
+
+"A": {
+  style.fill: "#fde68a"
+  style.bold: true
+}
+"Z": {
+  style.stroke: "#dc2626"
+  style.stroke-dash: 4
+  tooltip: "не удалось получить зависимости"
+}
+
+"A" -> "B"
+"A" -> "C"
+"A" -> "D"
+"B" -> "E"
+"B" -> "F"
+"E" -> "I"
+"F" -> "I"
+"F" -> "J"
+"J" -> "F": "цикл" {
+  style.stroke: "#dc2626"
+  style.stroke-dash: 3
+}
+"C" -> "F"
+"C" -> "G"
+"G" -> "B"
+"G" -> "K"
+"K" -> "L"
+"L" -> "K": "цикл" {
+  style.stroke: "#dc2626"
+  style.stroke-dash: 3
+}
+"D" -> "G"
+"D" -> "H"
+"H" -> "Z"

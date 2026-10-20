@@ -1,0 +1,24 @@
+# Граф зависимостей пакета com.example:app:1.0
+direction: down
+
+"com.example:app:1.0": {
+  style.fill: "#fde68a"
+  style.bold: true
+}
+"com.example:ghost:1.0": {
+  style.stroke: "#dc2626"
+  style.stroke-dash: 4
+  tooltip: "не удалось получить зависимости"
+}
+
+"com.example:app:1.0" -> "com.example:core:1.5"
+"com.example:app:1.0" -> "com.example:json:3.0"
+"com.example:app:1.0" -> "com.example:logger:2.1"
+"com.example:core:1.5" -> "com.example:util:1.5"
+"com.example:core:1.5" -> "com.example:logger:2.0"
+"com.example:util:1.5" -> "com.example:core:1.5": "цикл" {
+  style.stroke: "#dc2626"
+  style.stroke-dash: 3
+}
+"com.example:json:3.0" -> "com.example:util:1.5"
+"com.example:json:3.0" -> "com.example:ghost:1.0"

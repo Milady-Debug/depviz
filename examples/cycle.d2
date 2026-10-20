@@ -1,0 +1,15 @@
+# Граф зависимостей пакета A
+direction: down
+
+"A": {
+  style.fill: "#fde68a"
+  style.bold: true
+}
+
+"A" -> "B"
+"B" -> "C"
+"C" -> "A": "цикл" {
+  style.stroke: "#dc2626"
+  style.stroke-dash: 3
+}
+"C" -> "D"

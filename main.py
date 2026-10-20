@@ -6,6 +6,7 @@
 import sys
 
 from depviz.config import ConfigError, load_config
+from depviz.d2 import to_d2
 from depviz.graph import build_graph, format_tree, load_order
 from depviz.maven import MavenError, MavenRepository, make_provider, parse_coordinate
 from depviz.test_repo import TestRepoError, TestRepository
@@ -42,7 +43,17 @@ def main(argv):
 
     graph = build_graph(root, provider, errors)
 
-    if config["output_mode"] == "load_order":
+    mode = config["output_mode"]
+    if mode == "d2":
+        # Этап 5: описание графа на языке D2
+        print(to_d2(graph), end="")
+        for cycle in graph.cycles:
+            print("Цикл: " + " -> ".join(cycle), file=sys.stderr)
+        for node, err in graph.errors.items():
+            print(f"Предупреждение: {node}: {err}", file=sys.stderr)
+        return 0
+
+    if mode == "load_order":
         # Этап 4: порядок загрузки зависимостей
         print(f"Порядок загрузки зависимостей для {root}:")
         for i, node in enumerate(load_order(graph), start=1):
@@ -54,7 +65,7 @@ def main(argv):
     if graph.cycles:
         print("Обнаружены циклические зависимости"
               " (обратное ребро цикла при упорядочивании пропущено):"
-              if config["output_mode"] == "load_order" else
+              if mode == "load_order" else
               "Обнаружены циклические зависимости:")
         for cycle in graph.cycles:
             print("  " + " -> ".join(cycle))
