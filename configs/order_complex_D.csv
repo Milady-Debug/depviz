@@ -1,0 +1,5 @@
+key,value
+package_name,D
+repository,../tests_repo/complex.txt
+test_mode,true
+output_mode,load_order

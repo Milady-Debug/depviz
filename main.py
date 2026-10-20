@@ -6,7 +6,7 @@
 import sys
 
 from depviz.config import ConfigError, load_config
-from depviz.graph import build_graph, format_tree
+from depviz.graph import build_graph, format_tree, load_order
 from depviz.maven import MavenError, MavenRepository, make_provider, parse_coordinate
 from depviz.test_repo import TestRepoError, TestRepository
 
@@ -42,11 +42,20 @@ def main(argv):
 
     graph = build_graph(root, provider, errors)
 
-    # Этап 3: граф зависимостей с учётом транзитивности
-    print(format_tree(graph))
-    print(f"\nУзлов: {len(graph.nodes)}, рёбер: {graph.edge_count()}")
+    if config["output_mode"] == "load_order":
+        # Этап 4: порядок загрузки зависимостей
+        print(f"Порядок загрузки зависимостей для {root}:")
+        for i, node in enumerate(load_order(graph), start=1):
+            note = " (недоступен)" if node in graph.errors else ""
+            print(f"  {i:>3}. {node}{note}")
+    else:
+        print(format_tree(graph))
+        print(f"\nУзлов: {len(graph.nodes)}, рёбер: {graph.edge_count()}")
     if graph.cycles:
-        print("Обнаружены циклические зависимости:")
+        print("Обнаружены циклические зависимости"
+              " (обратное ребро цикла при упорядочивании пропущено):"
+              if config["output_mode"] == "load_order" else
+              "Обнаружены циклические зависимости:")
         for cycle in graph.cycles:
             print("  " + " -> ".join(cycle))
     for node, err in graph.errors.items():

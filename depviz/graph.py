@@ -82,3 +82,21 @@ def format_tree(graph):
 
     walk(graph.root, "", [graph.root])
     return "\n".join(lines)
+
+
+def load_order(graph):
+    """Порядок загрузки: каждая зависимость идёт раньше зависящего от неё
+    пакета (обратный топологический порядок, post-order DFS).
+    Корневой пакет загружается последним. Если есть цикл, обратное ребро
+    пропускается, т.е. цикл «разрывается» в месте его обнаружения."""
+    order, visited = [], set()
+
+    def visit(node):
+        visited.add(node)
+        for dep in graph.edges.get(node, []):
+            if dep not in visited:
+                visit(dep)
+        order.append(node)
+
+    visit(graph.root)
+    return order
