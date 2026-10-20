@@ -1,6 +1,6 @@
 import unittest
 
-from depviz.graph import build_graph
+from depviz.graph import build_graph, load_order
 
 
 def make(edges):
@@ -38,6 +38,29 @@ class BuildGraphTest(unittest.TestCase):
     def test_missing_package(self):
         g = build_graph("A", make({"A": ["Z"]}), (KeyError,))
         self.assertIn("Z", g.errors)
+
+
+
+
+class LoadOrderTest(unittest.TestCase):
+    def check_order(self, edges, root="A"):
+        g = build_graph(root, make(edges), (KeyError,))
+        order = load_order(g)
+        pos = {n: i for i, n in enumerate(order)}
+        for node, deps in g.edges.items():
+            for d in deps:
+                if (node, d) not in g.back_edges:
+                    self.assertLess(pos[d], pos[node], f"{d} должен идти раньше {node}")
+        self.assertEqual(order[-1], root)
+        self.assertEqual(len(order), len(set(order)))
+        return order
+
+    def test_diamond(self):
+        self.assertEqual(self.check_order({"A": ["B", "C"], "B": ["D"], "C": ["D"], "D": []}),
+                         ["D", "B", "C", "A"])
+
+    def test_cycle(self):
+        self.check_order({"A": ["B"], "B": ["C"], "C": ["A", "D"], "D": []})
 
 
 if __name__ == "__main__":

@@ -17,7 +17,10 @@ class ConfigError(Exception):
 
 # Обязательные параметры (порядок важен для вывода).
 REQUIRED_KEYS = ("package_name", "repository", "test_mode")
-KNOWN_KEYS = REQUIRED_KEYS
+# Необязательные параметры и их значения по умолчанию.
+OPTIONAL_KEYS = {"output_mode": "tree"}
+KNOWN_KEYS = REQUIRED_KEYS + tuple(OPTIONAL_KEYS)
+OUTPUT_MODES = ("tree", "load_order")
 
 TRUE_VALUES = {"true", "yes", "1", "on"}
 FALSE_VALUES = {"false", "no", "0", "off"}
@@ -136,8 +139,15 @@ def load_config(path):
     _check_package(raw["package_name"], test_mode)
     repository = _check_repository(raw["repository"], test_mode, config_dir)
 
+    output_mode = raw.get("output_mode", OPTIONAL_KEYS["output_mode"]).lower()
+    if output_mode not in OUTPUT_MODES:
+        raise ConfigError(
+            f"output_mode: недопустимое значение '{raw['output_mode']}', "
+            f"ожидается одно из: {', '.join(OUTPUT_MODES)}")
+
     return {
         "package_name": raw["package_name"],
         "repository": repository,
         "test_mode": test_mode,
+        "output_mode": output_mode,
     }

@@ -1,0 +1,5 @@
+key,value
+package_name,A
+repository,../../tests_repo/simple.txt
+test_mode,true
+output_mode,picture
