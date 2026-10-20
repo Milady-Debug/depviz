@@ -95,6 +95,8 @@ class MavenRepository:
                 raise MavenError(f"не найдено в репозитории: {url}")
             raise MavenError(f"HTTP {e.code} при загрузке {url}")
         except urllib.error.URLError as e:
+            if isinstance(e.reason, FileNotFoundError):  # file:// URL
+                raise MavenError(f"не найдено в репозитории: {url}")
             raise MavenError(f"не удалось подключиться к {url}: {e.reason}")
         except (OSError, ValueError) as e:
             raise MavenError(f"ошибка загрузки {url}: {e}")
